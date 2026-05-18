@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebGIS Multi GeoJSON</title>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        #map {
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+// Inisialisasi map (Merak Belantung)
+var map = L.map('map').setView([-5.7, 105.57], 12);
+
+// Basemap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'OpenStreetMap'
+}).addTo(map);
+
+// Object untuk layer control
+var overlayMaps = {};
+
+// Fungsi load GeoJSON
+function loadGeoJSON(namaFile, namaLayer, warna) {
+
+    fetch(namaFile)
+    .then(res => res.json())
+    .then(data => {
+
+        var layer = L.geoJSON(data, {
+
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 6,
+                    fillColor: warna,
+                    color: "black",
+                    weight: 1,
+                    fillOpacity: 0.8
+                });
+            },
+
+            onEachFeature: function(feature, layer) {
+                layer.bindPopup(
+                    "<b>Layer:</b> " + namaLayer
+                );
+            }
+
+        });
+
+        overlayMaps[namaLayer] = layer;
+
+        layer.addTo(map);
+
+    })
+    .catch(err => console.log("Error load:", namaFile, err));
+}
+
+// Load 16 file
+loadGeoJSON("Parkiran.geojson", "Parkiran", "red");
+loadGeoJSON("Pintu Masuk.geojson", "Pintu Masuk", "blue");
+loadGeoJSON("Batas Pantai.geojson", "Batas pantai", "green");
+loadGeoJSON("BDRL.geojson", "BDRL", "orange");
+loadGeoJSON("Gazebo.geojson", "Gazebo", "purple");
+loadGeoJSON("Kafe.geojson", "Kafe", "yellow");
+loadGeoJSON("Muara.geojson", "Muara", "cyan");
+loadGeoJSON("Pantai Keduwarna.geojson", "Pantai Keduwarna", "magenta");
+loadGeoJSON("Pasir.geojson", "Pasir", "brown");
+loadGeoJSON("Rumput Laut APD.geojson", "RL APD", "black");
+loadGeoJSON("Spot Foto.geojson", "Spot Foto", "pink");
+loadGeoJSON("Toilet.geojson", "Toilet", "lime");
+loadGeoJSON("Tugu.geojson", "Tugu", "navy");
+loadGeoJSON("data14.geojson", "Data 14", "teal");
+loadGeoJSON("data15.geojson", "Data 15", "gold");
+loadGeoJSON("data16.geojson", "Data 16", "gray");
+
+// Tambahkan Layer Control (delay biar semua kebaca)
+setTimeout(function() {
+    L.control.layers(null, overlayMaps).addTo(map);
+}, 2000);
+
+</script>
+
+</body>
+</html>
